@@ -28,7 +28,6 @@ namespace UnitTests
             var toTest = BitArrayExtensions.BitArrayFromBinaryString(bitString);
             toTest.ReverseBitArray(8);
             var key = new Key(toTest);
-            var des = new DES();
             var message = BitArrayExtensions.BitArrayFromBinaryString(bitString);
             message = DES.CipherMessage(message, key);
             message = DES.DecipherMessage(message, key);

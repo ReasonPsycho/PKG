@@ -14,7 +14,7 @@ namespace UnitTests
         private static readonly Key TestKey = new Key(toTest);
 
         [Test]
-        public void LoremIpsumPDF()
+        public void Case_9_163()
         {
             var LoremIpsumPDF_Orginal = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Lorem Ipsum Orginal.pdf");
 
@@ -23,14 +23,19 @@ namespace UnitTests
             var buffer = new byte[8]; // create a byte array to hold the 8 bytes
             using (var stream = new FileStream(LoremIpsumPDF_Orginal, FileMode.Open)) // open the file
             {
-                stream.Seek(2560, SeekOrigin.Begin); // set the file pointer to byte 2560
-                stream.Read(buffer, 0, buffer.Length); // read 8 bytes into the buffer
+                using (var binaryReader = new BinaryReader(stream))
+                {
+                    stream.Seek(2560, SeekOrigin.Begin); // set the file pointer to byte 2560
+                    buffer = binaryReader.ReadBytes(8); // read 8 bytes into the buffer
+                }
             }
 
             var testArray = new BitArray(buffer);
             var encodedArray = DES.CipherMessage(testArray, TestKey);
             var decodedArray = DES.DecipherMessage(encodedArray, TestKey);
-            Assert.AreEqual(testArray, decodedArray,
+            var outByte = new byte[8];
+            decodedArray.CopyTo(outByte, 0);
+            Assert.AreEqual(buffer, outByte,
                 testArray.ToBinaryString(8) + "\n" + decodedArray.ToBinaryString(8));
         }
     }
