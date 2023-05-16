@@ -11,7 +11,13 @@ namespace UnitTests
         [SetUp]
         public void CreateDES()
         {
-            Key[] TestKeys = { new Key(), new Key(), new Key() };
+            var bitString = "0000000100100011010001010110011110001001101010111100110111101111";
+            var bitArray = BitArrayExtensions.BitArrayFromBinaryString(bitString);
+            var bitString1 = "0000000100100011010001010110011110001001101010111100110111101111";
+            var bitArray1 = BitArrayExtensions.BitArrayFromBinaryString(bitString);
+            var bitString2 = "0000000100100011010001010110011110001001101010111100110111101111";
+            var bitArray2 = BitArrayExtensions.BitArrayFromBinaryString(bitString);
+            Key[] TestKeys = { new Key(bitArray), new Key(bitArray1), new Key(bitArray2) };
             tripleDES = new TripleDES(TestKeys);
         }
 

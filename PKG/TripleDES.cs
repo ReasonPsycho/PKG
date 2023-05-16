@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace PKG
 {
@@ -7,9 +8,11 @@ namespace PKG
         public TripleDES(Key[] keys)
         {
             Keys = keys;
+            _random = new Random((int)DateTime.Now.Ticks);
         }
 
         public Key[] Keys { get; set; }
+        public Random _random { get; set; }
 
         public BitArray CipherMessage(BitArray message)
         {

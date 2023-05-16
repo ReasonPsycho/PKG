@@ -10,8 +10,7 @@ namespace UnitTests
         [Test]
         public void GenerateKey()
         {
-            var bitString =
-                "0000000100100011010001010110011110001001101010111100110111101111"; //0000000100100011010001010110011110001001101010111100110111101111
+            var bitString = "0000000100100011010001010110011110001001101010111100110111101111";
             var bitArray = BitArrayExtensions.BitArrayFromBinaryString(bitString);
             var key = new Key(bitArray);
             Console.WriteLine(key.ToString());
@@ -44,11 +43,22 @@ namespace UnitTests
         }
 
         [Test]
-        public void GenerateRandomKey()
+        public void GenerateRandomKeyDiffrent()
         {
-            var key1 = new Key(Key.GenrateRandomKeyInput());
-            var key2 = new Key(Key.GenrateRandomKeyInput());
-            Assert.AreNotEqual(key1, key2);
+            ISymmetricCypher symmetricCypher = new DES();
+            var key1 = new Key(symmetricCypher.GenrateRandomKeyInput());
+            var key2 = new Key(symmetricCypher.GenrateRandomKeyInput());
+            Assert.AreNotEqual(key1.Subkeys, key2.Subkeys);
+        }
+
+        [Test]
+        public void GenerateRandomKeySame()
+        {
+            ISymmetricCypher symmetricCypher = new DES();
+            var input = symmetricCypher.GenrateRandomKeyInput();
+            var key1 = new Key(input);
+            var key2 = new Key(input);
+            Assert.AreEqual(key1.Subkeys, key2.Subkeys);
         }
     }
 }

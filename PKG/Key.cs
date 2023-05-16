@@ -115,13 +115,6 @@ namespace PKG
             for (var i = 0; i < 16; i++) ReversedSubkeys[i] = Subkeys[15 - i];
         }
 
-        public Key()
-        {
-            var newKey = new Key(GenrateRandomKeyInput());
-            Subkeys = newKey.Subkeys;
-            ReversedSubkeys = newKey.ReversedSubkeys;
-        }
-
         public override string ToString()
         {
             var result = "";
@@ -129,14 +122,6 @@ namespace PKG
             for (var i = 0; i < 16; i++) result += Subkeys[i].ToBinaryString() + "\n";
 
             return result;
-        }
-
-        public static long GenrateRandomKeyInput() //TODO fix this bullshit
-        {
-            var ticks = DateTime.Now.Ticks;
-            var rnd = new Random((int)(ticks & 0xffffffffL) | (int)(ticks >> 32));
-            var randomValue = (uint)rnd.Next();
-            return Math.Abs((ticks << 32) | randomValue);
         }
     }
 }

@@ -20,44 +20,47 @@ namespace PKG
             _viewModel = new DES_ViewModel();
             DataContext = _viewModel;
             _viewModel.IsThreeBoxesVisible = false;
+            _symmetricCypher = new DES();
             GenerateKeyAndCypher();
         }
 
         private void CheckKeyValue()
         {
             if (isDES)
+            {
                 if (_keysValue[0] != long.Parse(keyTextBox.Text))
                 {
                     _keysValue[0] = long.Parse(keyTextBox.Text);
                     _symmetricCypher = new DES(new Key(_keysValue[0]));
                 }
-                else
+            }
+            else
+            {
+                var hasChanged = false;
+                if (_keysValue != null && _keysValue[0] != long.Parse(keyTextBox.Text))
                 {
-                    var hasChanged = false;
-                    if (_keysValue != null && _keysValue[0] != long.Parse(keyTextBox.Text))
-                    {
-                        hasChanged = true;
-                        _keysValue[0] = long.Parse(keyTextBox.Text);
-                    }
-
-                    if (_keysValue != null && _keysValue[1] != long.Parse(keyTextBox.Text))
-                    {
-                        hasChanged = true;
-                        _keysValue[1] = long.Parse(keyTextBox2.Text);
-                    }
-
-                    if (_keysValue != null && _keysValue[2] != long.Parse(keyTextBox.Text))
-                    {
-                        hasChanged = true;
-                        _keysValue[2] = long.Parse(keyTextBox3.Text);
-                    }
-
-                    if (hasChanged)
-                    {
-                        Key[] keys = { new Key(_keysValue[0]), new Key(_keysValue[1]), new Key(_keysValue[2]) };
-                        _symmetricCypher = new TripleDES(keys);
-                    }
+                    hasChanged = true;
+                    _keysValue[0] = long.Parse(keyTextBox.Text);
                 }
+
+                if (_keysValue != null && _keysValue[1] != long.Parse(keyTextBox.Text))
+                {
+                    hasChanged = true;
+                    _keysValue[1] = long.Parse(keyTextBox2.Text);
+                }
+
+                if (_keysValue != null && _keysValue[2] != long.Parse(keyTextBox.Text))
+                {
+                    hasChanged = true;
+                    _keysValue[2] = long.Parse(keyTextBox3.Text);
+                }
+
+                if (hasChanged)
+                {
+                    Key[] keys = { new Key(_keysValue[0]), new Key(_keysValue[1]), new Key(_keysValue[2]) };
+                    _symmetricCypher = new TripleDES(keys);
+                }
+            }
         }
 
         private void GenerateKeyAndCypher()
@@ -65,17 +68,17 @@ namespace PKG
             _keysValue = new long[3];
             if (isDES)
             {
-                _keysValue[0] = Key.GenrateRandomKeyInput();
+                _keysValue[0] = _symmetricCypher.GenrateRandomKeyInput();
                 keyTextBox.Text = _keysValue[0].ToString();
                 _symmetricCypher = new DES(new Key(_keysValue[0]));
             }
             else
             {
-                _keysValue[0] = Key.GenrateRandomKeyInput();
+                _keysValue[0] = _symmetricCypher.GenrateRandomKeyInput();
                 keyTextBox.Text = _keysValue[0].ToString();
-                _keysValue[1] = Key.GenrateRandomKeyInput();
+                _keysValue[1] = _symmetricCypher.GenrateRandomKeyInput();
                 keyTextBox2.Text = _keysValue[1].ToString();
-                _keysValue[2] = Key.GenrateRandomKeyInput();
+                _keysValue[2] = _symmetricCypher.GenrateRandomKeyInput();
                 keyTextBox3.Text = _keysValue[2].ToString();
                 Key[] keys = { new Key(_keysValue[0]), new Key(_keysValue[1]), new Key(_keysValue[2]) };
                 _symmetricCypher = new TripleDES(keys);
@@ -87,9 +90,12 @@ namespace PKG
             CheckKeyValue();
             if ((bool)FileSwitch.IsChecked)
             {
-                jawnyTextBox.Text = File.ReadAllText(jawnyPathTextBox.Text);
-                szyfrogramTextBox.Text =
-                    _symmetricCypher.EncodeFile(jawnyPathTextBox.Text, szyfrogramPathTextBox.Text);
+                if (CheckFileExists(jawnyPathTextBox.Text))
+                {
+                    jawnyTextBox.Text = File.ReadAllText(jawnyPathTextBox.Text);
+                    szyfrogramTextBox.Text =
+                        _symmetricCypher.EncodeFile(jawnyPathTextBox.Text, szyfrogramPathTextBox.Text);
+                }
             }
             else
             {
@@ -103,9 +109,12 @@ namespace PKG
             CheckKeyValue();
             if ((bool)FileSwitch.IsChecked)
             {
-                szyfrogramTextBox.Text = File.ReadAllText(szyfrogramPathTextBox.Text);
-                jawnyTextBox.Text =
-                    _symmetricCypher.DecodeFile(szyfrogramPathTextBox.Text, jawnyPathTextBox.Text);
+                if (CheckFileExists(szyfrogramTextBox.Text))
+                {
+                    szyfrogramTextBox.Text = File.ReadAllText(szyfrogramPathTextBox.Text);
+                    jawnyTextBox.Text =
+                        _symmetricCypher.DecodeFile(szyfrogramPathTextBox.Text, jawnyPathTextBox.Text);
+                }
             }
             else
             {
@@ -129,6 +138,17 @@ namespace PKG
         {
             isDES = true;
             _viewModel.IsThreeBoxesVisible = false;
+        }
+
+        public static bool CheckFileExists(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                MessageBox.Show("File doesn't exists.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            return true;
         }
     }
 }

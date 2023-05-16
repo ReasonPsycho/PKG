@@ -34,7 +34,7 @@ namespace PKG
             18, 12, 29, 5, 21, 10, 3, 24
         };
 
-        public static readonly int[][] S_BOXES =
+        public static readonly int[][] SBoxes =
         {
             new[]
             {
@@ -187,15 +187,15 @@ namespace PKG
 
             for (var i = 0; i < 8; i++)
             {
-                var currentSBox = S_BOXES[i];
+                var currentSBox = SBoxes[i];
                 row[0] = bits[i * 6];
                 row[1] = bits[i * 6 + 5];
                 column[0] = bits[i * 6 + 1];
                 column[1] = bits[i * 6 + 2];
                 column[2] = bits[i * 6 + 3];
                 column[3] = bits[i * 6 + 4];
-                var rowValue = row.getIntFromBitArray(2);
-                var columnValue = column.getIntFromBitArray(4);
+                var rowValue = row.GetIntFromBitArray(2);
+                var columnValue = column.GetIntFromBitArray(4);
                 var index = rowValue * 16 + columnValue;
                 var takeAway = new BitArray(4);
                 var take = currentSBox[index];
@@ -211,7 +211,7 @@ namespace PKG
         }
 
 
-        private static int getIntFromBitArray(this BitArray bitArray, int lenght)
+        private static int GetIntFromBitArray(this BitArray bitArray, int lenght)
         {
             var result = 0;
 

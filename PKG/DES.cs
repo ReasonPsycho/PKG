@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 
 namespace PKG
 {
@@ -8,9 +9,19 @@ namespace PKG
         public DES(Key key)
         {
             Keys = new[] { key };
+            _random = new Random((int)DateTime.Now.Ticks);
+        }
+
+        public DES()
+        {
+            var bitString = "0000000100100011010001010110011110001001101010111100110111101111";
+            var bitArray = BitArrayExtensions.BitArrayFromBinaryString(bitString);
+            Keys = new[] { new Key(bitArray) };
+            _random = new Random((int)DateTime.Now.Ticks);
         }
 
         public Key[] Keys { get; set; }
+        public Random _random { get; set; }
 
         public BitArray CipherMessage(BitArray message)
         {
@@ -18,33 +29,30 @@ namespace PKG
 
             message = message.PermutateBitArray(BitArrayExtensions.IP); //TEST this
 
-            Console.WriteLine(message.ToBinaryString());
+            Debug.WriteLine(message.ToBinaryString());
 
 
-            BitArray left_half;
-            BitArray right_half;
-
-            message.SplitBitArray(out left_half, out right_half);
+            message.SplitBitArray(out var leftHalf, out var rightHalf);
 
 
             for (var i = 0; i < 16; i++)
             {
-                var original_right_half = (BitArray)right_half.Clone();
+                var originalRightHalf = (BitArray)rightHalf.Clone();
 
-                right_half = right_half.RoundFunction();
+                rightHalf = rightHalf.RoundFunction();
 
-                right_half = right_half.XOR_BitArray(Keys[0].Subkeys[i]);
+                rightHalf = rightHalf.XOR_BitArray(Keys[0].Subkeys[i]);
 
-                right_half = right_half.Substitution();
+                rightHalf = rightHalf.Substitution();
 
-                right_half = right_half.PermutateBitArray(BitArrayExtensions.PBlock);
+                rightHalf = rightHalf.PermutateBitArray(BitArrayExtensions.PBlock);
 
-                right_half = left_half.XOR_BitArray(right_half);
+                rightHalf = leftHalf.XOR_BitArray(rightHalf);
 
-                left_half = original_right_half;
+                leftHalf = originalRightHalf;
             }
 
-            message = BitArrayExtensions.JoinBitArray(right_half, left_half);
+            message = BitArrayExtensions.JoinBitArray(rightHalf, leftHalf);
 
             // Perform final permutation of the message
             message = message.PermutateBitArray(BitArrayExtensions.FP);
@@ -61,30 +69,27 @@ namespace PKG
             Console.WriteLine(message.ToBinaryString());
 
 
-            BitArray left_half;
-            BitArray right_half;
-
-            message.SplitBitArray(out left_half, out right_half);
+            message.SplitBitArray(out var leftHalf, out var rightHalf);
 
 
             for (var i = 15; i >= 0; i--)
             {
-                var original_right_half = (BitArray)right_half.Clone();
+                var originalRightHalf = (BitArray)rightHalf.Clone();
 
-                right_half = right_half.RoundFunction();
+                rightHalf = rightHalf.RoundFunction();
 
-                right_half = right_half.XOR_BitArray(Keys[0].Subkeys[i]);
+                rightHalf = rightHalf.XOR_BitArray(Keys[0].Subkeys[i]);
 
-                right_half = right_half.Substitution();
+                rightHalf = rightHalf.Substitution();
 
-                right_half = right_half.PermutateBitArray(BitArrayExtensions.PBlock);
+                rightHalf = rightHalf.PermutateBitArray(BitArrayExtensions.PBlock);
 
-                right_half = left_half.XOR_BitArray(right_half);
+                rightHalf = leftHalf.XOR_BitArray(rightHalf);
 
-                left_half = original_right_half;
+                leftHalf = originalRightHalf;
             }
 
-            message = BitArrayExtensions.JoinBitArray(right_half, left_half);
+            message = BitArrayExtensions.JoinBitArray(rightHalf, leftHalf);
 
             // Perform final permutation of the message
             message = message.PermutateBitArray(BitArrayExtensions.FP);

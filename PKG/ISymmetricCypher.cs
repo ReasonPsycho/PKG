@@ -8,6 +8,8 @@ namespace PKG
     public interface ISymmetricCypher
     {
         Key[] Keys { get; set; }
+
+        Random _random { get; set; }
         public BitArray CipherMessage(BitArray message);
         public BitArray DecipherMessage(BitArray message);
     }
@@ -197,6 +199,13 @@ namespace PKG
             }
 
             return output;
+        }
+
+        public static long GenrateRandomKeyInput(this ISymmetricCypher symmetricCypher) //TODO fix this bullshit
+        {
+            var buffer = new byte[8];
+            symmetricCypher._random.NextBytes(buffer);
+            return Math.Abs(BitConverter.ToInt64(buffer, 0));
         }
     }
 }

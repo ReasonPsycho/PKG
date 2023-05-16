@@ -35,11 +35,11 @@
 
 
             <Grid Grid.Column="0" Grid.Row="0">
-                <TextBox x:Name="jawnyPathTextBox" Margin="5"> Nazwa pliku z tekstem jawnym </TextBox>
+                <TextBox x:Name="jawnyPathTextBox" Margin="5"> Ścieżka pliku z tekstem jawnym </TextBox>
             </Grid>
 
             <Grid Grid.Column="2" Grid.Row="0">
-                <TextBox x:Name="szyfrogramPathTextBox" Margin="5"> Nazwa pliku z szyfrogramem </TextBox>
+                <TextBox x:Name="szyfrogramPathTextBox" Margin="5"> Ścieżka pliku z szyfrogramem </TextBox>
             </Grid>
 
 
