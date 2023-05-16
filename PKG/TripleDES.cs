@@ -2,21 +2,30 @@
 
 namespace PKG
 {
-    public class TripleDES
+    public class TripleDES : ISymmetricCypher
     {
-        public BitArray CipherMessage(BitArray message, Key key0, Key key1, Key key2)
+        public TripleDES(Key[] keys)
         {
-            message = DES.CipherMessage(message, key0);
-            message = DES.DecipherMessage(message, key1);
-            message = DES.CipherMessage(message, key2);
+            Keys = keys;
+        }
+
+        public Key[] Keys { get; set; }
+
+        public BitArray CipherMessage(BitArray message)
+        {
+            DES[] deses = { new DES(Keys[0]), new DES(Keys[1]), new DES(Keys[2]) };
+            message = deses[0].CipherMessage(message);
+            message = deses[1].DecipherMessage(message);
+            message = deses[2].CipherMessage(message);
             return message;
         }
 
-        public BitArray DecipherMessage(BitArray message, Key key0, Key key1, Key key2)
+        public BitArray DecipherMessage(BitArray message)
         {
-            message = DES.DecipherMessage(message, key0);
-            message = DES.CipherMessage(message, key1);
-            message = DES.DecipherMessage(message, key2);
+            DES[] deses = { new DES(Keys[0]), new DES(Keys[1]), new DES(Keys[2]) };
+            message = deses[2].DecipherMessage(message);
+            message = deses[1].CipherMessage(message);
+            message = deses[0].DecipherMessage(message);
             return message;
         }
     }

@@ -3,9 +3,16 @@ using System.Collections;
 
 namespace PKG
 {
-    public class DES
+    public class DES : ISymmetricCypher
     {
-        public static BitArray CipherMessage(BitArray message, Key key)
+        public DES(Key key)
+        {
+            Keys = new[] { key };
+        }
+
+        public Key[] Keys { get; set; }
+
+        public BitArray CipherMessage(BitArray message)
         {
             // Perform initial permutation of the input message
 
@@ -26,7 +33,7 @@ namespace PKG
 
                 right_half = right_half.RoundFunction();
 
-                right_half = right_half.XOR_BitArray(key.Subkeys[i]);
+                right_half = right_half.XOR_BitArray(Keys[0].Subkeys[i]);
 
                 right_half = right_half.Substitution();
 
@@ -45,7 +52,7 @@ namespace PKG
             return message;
         }
 
-        public static BitArray DecipherMessage(BitArray message, Key key)
+        public BitArray DecipherMessage(BitArray message)
         {
             // Perform initial permutation of the input message
 
@@ -66,7 +73,7 @@ namespace PKG
 
                 right_half = right_half.RoundFunction();
 
-                right_half = right_half.XOR_BitArray(key.Subkeys[i]);
+                right_half = right_half.XOR_BitArray(Keys[0].Subkeys[i]);
 
                 right_half = right_half.Substitution();
 

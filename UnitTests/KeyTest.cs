@@ -46,8 +46,8 @@ namespace UnitTests
         [Test]
         public void GenerateRandomKey()
         {
-            var key1 = new Key(DESImplemantation.GenrateRandomKeyInput());
-            var key2 = new Key(DESImplemantation.GenrateRandomKeyInput());
+            var key1 = new Key(Key.GenrateRandomKeyInput());
+            var key2 = new Key(Key.GenrateRandomKeyInput());
             Assert.AreNotEqual(key1, key2);
         }
     }

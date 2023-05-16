@@ -5,9 +5,16 @@ using System.Text;
 
 namespace PKG
 {
-    public class DESImplemantation
+    public interface ISymmetricCypher
     {
-        public static string EncodeString(string input, Key key)
+        Key[] Keys { get; set; }
+        public BitArray CipherMessage(BitArray message);
+        public BitArray DecipherMessage(BitArray message);
+    }
+
+    public static class SymmetricCypherExtensions
+    {
+        public static string EncodeString(this ISymmetricCypher symmetricCypher, string input)
         {
             // Determine padding length
             var padLength = 8 - input.Length % 8;
@@ -27,7 +34,7 @@ namespace PKG
                 var bytes = Encoding.ASCII
                     .GetBytes(substring); //Maby error maby reverse idk XDD
                 var bits = new BitArray(bytes);
-                bits = DES.CipherMessage(bits, key);
+                bits = symmetricCypher.CipherMessage(bits);
                 bits.CopyTo(bytes, 0);
                 output += bits.ToBinaryString();
             }
@@ -35,7 +42,7 @@ namespace PKG
             return output;
         }
 
-        public static string DecodeString(string input, Key key)
+        public static string DecodeString(this ISymmetricCypher symmetricCypher, string input)
         {
             input = input.Replace(" ", "");
             // Calculate the amount of loops
@@ -46,7 +53,7 @@ namespace PKG
             {
                 var substring = input.Substring(i * 64, 64);
                 var bits = BitArrayExtensions.BitArrayFromBinaryString(substring);
-                bits = DES.DecipherMessage(bits, key);
+                bits = symmetricCypher.DecipherMessage(bits);
                 var bytes = new byte[8];
                 bits.CopyTo(bytes, 0);
                 output += Encoding.ASCII.GetString(bytes);
@@ -66,7 +73,7 @@ namespace PKG
             return output.Substring(0, output.Length - padLength);
         }
 
-        public static string EncodeFile(string pathFrom, string pathTo, Key key)
+        public static string EncodeFile(this ISymmetricCypher symmetricCypher, string pathFrom, string pathTo)
         {
             // Open the file in binary mode
             var readStream = new FileStream(pathFrom, FileMode.Open, FileAccess.Read);
@@ -81,7 +88,7 @@ namespace PKG
             for (var i = 0; i < binaryReader.BaseStream.Length; i += 8)
             {
                 var byteArray = binaryReader.ReadBytes(8);
-                if (byteArray.Length < 8)
+                if (byteArray.Length < 8) //That's adds unnecesery padding but i thinks it's key for now
                 {
                     // Determine padding length
                     var padLength = 8 - byteArray.Length % 8;
@@ -96,7 +103,7 @@ namespace PKG
                 }
 
                 var bitArray = new BitArray(byteArray);
-                bitArray = DES.CipherMessage(bitArray, key);
+                bitArray = symmetricCypher.CipherMessage(bitArray);
                 var outArray = new byte[8];
                 bitArray.CopyTo(outArray, 0);
                 binaryWriter.Write(outArray);
@@ -124,7 +131,7 @@ namespace PKG
             return output;
         }
 
-        public static string DecodeFile(string pathFrom, string pathTo, Key key)
+        public static string DecodeFile(this ISymmetricCypher symmetricCypher, string pathFrom, string pathTo)
         {
             // Open the file in binary mode
             var readStream = new FileStream(pathFrom, FileMode.Open, FileAccess.Read);
@@ -138,29 +145,38 @@ namespace PKG
             var binaryWriter = new BinaryWriter(writeStream);
 
 
-            for (var i = 0; i < binaryReader.BaseStream.Length; i += 8)
+            byte[] byteArray;
+            BitArray bitArray;
+            byte[] outArray;
+            for (var i = 0; i < binaryReader.BaseStream.Length - 8; i += 8)
             {
-                var byteArray = binaryReader.ReadBytes(8);
-                var bitArray = new BitArray(byteArray);
-                bitArray = DES.DecipherMessage(bitArray, key);
-                var outArray = new byte[8];
+                byteArray = binaryReader.ReadBytes(8);
+                bitArray = new BitArray(byteArray);
+                bitArray = symmetricCypher.DecipherMessage(bitArray);
+                outArray = new byte[8];
                 bitArray.CopyTo(outArray, 0);
-
-                var isPadded = false;
-                if (outArray.Length % 8 == 0 && outArray.Length > 0)
-                {
-                    int lastByte = outArray[outArray.Length - 1];
-                    if (lastByte > 0 && lastByte <= 8)
-                    {
-                        var tmpByteArray = new byte[8 - lastByte];
-                        Array.Copy(outArray, 0, tmpByteArray, 0, 8 - lastByte);
-                        outArray = tmpByteArray;
-                    }
-                }
-
-
                 binaryWriter.Write(outArray);
             }
+
+            byteArray = binaryReader.ReadBytes(8);
+            bitArray = new BitArray(byteArray);
+            bitArray = symmetricCypher.DecipherMessage(bitArray);
+            outArray = new byte[8];
+            bitArray.CopyTo(outArray, 0);
+
+            if (outArray.Length % 8 == 0 && outArray.Length > 0)
+            {
+                int lastByte = outArray[outArray.Length - 1];
+                if (lastByte > 0 && lastByte <= 8)
+                {
+                    var tmpByteArray = new byte[8 - lastByte];
+                    Array.Copy(outArray, 0, tmpByteArray, 0, 8 - lastByte);
+                    outArray = tmpByteArray;
+                }
+            }
+
+
+            binaryWriter.Write(outArray);
 
             //Close BinaryReader and writers
             binaryReader.Close();
@@ -181,12 +197,6 @@ namespace PKG
             }
 
             return output;
-        }
-
-        public static long GenrateRandomKeyInput()
-        {
-            var rnd = new Random();
-            return ((long)rnd.Next() << 32) | (uint)rnd.Next();
         }
     }
 }

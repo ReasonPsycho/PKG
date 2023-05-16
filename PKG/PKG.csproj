@@ -14,6 +14,7 @@
         <WarningLevel>4</WarningLevel>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>8</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,10 +52,16 @@
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </ApplicationDefinition>
-        <Compile Include="DESImplemantation.cs" />
+        <Compile Include="BoolToVisibilityConverter.cs" />
+        <Compile Include="DES_ViewModel.cs">
+          <DependentUpon>DES_Window.xaml</DependentUpon>
+        </Compile>
         <Compile Include="Key.cs" />
-        <Compile Include="TripleDES.cs" />
-        <Page Include="MainWindow.xaml">
+        <Compile Include="ISymmetricCypher.cs" />
+        <Compile Include="TripleDES.cs">
+          <DependentUpon>ISymmetricCypher.cs</DependentUpon>
+        </Compile>
+        <Page Include="DES_Window.xaml">
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </Page>
@@ -63,9 +70,11 @@
             <SubType>Code</SubType>
         </Compile>
         <Compile Include="BitArrayExtensions.cs" />
-        <Compile Include="DES.cs" />
-        <Compile Include="MainWindow.xaml.cs">
-            <DependentUpon>MainWindow.xaml</DependentUpon>
+        <Compile Include="DES.cs">
+          <DependentUpon>ISymmetricCypher.cs</DependentUpon>
+        </Compile>
+        <Compile Include="DES_Window.xaml.cs">
+            <DependentUpon>DES_Window.xaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
     </ItemGroup>
